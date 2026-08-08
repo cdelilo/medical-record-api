@@ -10,8 +10,8 @@ import { createServer } from 'node:http'
 
 import '@shared/infra/typeorm'
 
-import AppError from '@shared/utility/AppError'
-import ResponseHandler from '@shared/utility/ResponseHandler'
+import AppError from '@shared/utils/AppError'
+import ResponseHandler from '@shared/utils/ResponseHandler'
 
 import routes from './routes'
 
