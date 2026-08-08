@@ -14,6 +14,10 @@
     "format:check": "prettier . --check",
     "check": "npm run typecheck && npm run format:check && npm run lint",
     "fix": "npm run format && npm run lint:fix",
+    "typeorm": "tsx ./node_modules/typeorm/cli.js",
+    "migration:create": "npm run typeorm -- migration:create",
+    "migration:run": "npm run typeorm -- migration:run -d ./src/shared/infra/typeorm/index.ts",
+    "migration:revert": "npm run typeorm -- migration:revert -d ./src/shared/infra/typeorm/index.ts",
     "dev": "tsx watch ./src/shared/infra/http/server.ts",
     "start": "node ./dist/shared/infra/http/server.js",
     "build": "tsc && tsc-alias"

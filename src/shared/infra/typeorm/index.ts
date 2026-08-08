@@ -6,14 +6,16 @@ const isDevEnv = process.env.NODE_ENV === 'development'
 const rootDir = isDevEnv ? 'src' : 'dist'
 const ext = isDevEnv ? 'ts' : 'js'
 
-const MySQLConnection = new DataSource({
+const Connection = new DataSource({
   type: 'mysql',
+  synchronize: false,
   host: `${process.env.MYSQL_HOST}`,
   port: Number(process.env.MYSQL_PORT),
   username: `${process.env.MYSQL_USER}`,
   password: `${process.env.MYSQL_PASSWD}`,
   database: `${process.env.MYSQL_DATABASE}`,
   entities: [`./${rootDir}/modules/**/infra/typeorm/entities/*.${ext}`],
+  migrations: [`./${rootDir}/shared/infra/typeorm/migrations/*.${ext}`],
 })
 
-export { MySQLConnection }
+export { Connection as DataSource }
