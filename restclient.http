@@ -6,10 +6,32 @@ GET {{host}}/healthy
 # Patients
 
 ### List patients
-GET {{host}}/patients?page=1&limit=20
+GET {{host}}/patients?page=1&limit=2
 
 ### Show patient
 GET {{host}}/patients/39d16f88-537e-4aec-b8f4-7e488ad3405d
 
 ### Delete patient personal data (LGPD)
 DELETE {{host}}/patients/33b418d5-1521-4640-b9d9-81ac04a0513b
+
+### Create patient
+POST {{host}}/patients
+Content-Type: application/json
+
+{
+  "name": "Maria da Cunha",
+  "phone": "+5516994215196",
+  "email": "maria@example.com",
+  "birthDate": "1995-03-02",
+  "sex": "FEMALE",
+  "heightM": 1.68,
+  "weightKg": 65.4
+}
+
+### Update patient
+PATCH {{host}}/patients/39d16f88-537e-4aec-b8f4-7e488ad3405d
+Content-Type: application/json
+
+{
+  "weightKg": 95.4
+}

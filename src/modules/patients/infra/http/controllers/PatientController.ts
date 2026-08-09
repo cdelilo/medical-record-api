@@ -3,7 +3,7 @@ import { container } from 'tsyringe'
 
 import CreatePatientService from '@modules/patients/services/CreatePatientService'
 import DeletePatientService from '@modules/patients/services/DeletePatientService'
-import ListPatientService from '@modules/patients/services/ListPatientsService'
+import ListPatientsService from '@modules/patients/services/ListPatientsService'
 import ShowPatientService from '@modules/patients/services/ShowPatientService'
 import UpdatePatientService from '@modules/patients/services/UpdatePatientService'
 import ResponseHandler from '@shared/utils/ResponseHandler'
@@ -13,8 +13,8 @@ export default class PatientController {
   public async list(request: Request, response: Response): Promise<Response> {
     const { page, limit } = request.query as unknown as IListPatientsDTOInput
 
-    const listPatientService = container.resolve(ListPatientService)
-    const patients = await listPatientService.execute({ page, limit })
+    const listPatientsService = container.resolve(ListPatientsService)
+    const patients = await listPatientsService.execute({ page, limit })
 
     return ResponseHandler.json(patients, response)
   }
