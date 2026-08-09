@@ -9,6 +9,7 @@ const ext = isDevEnv ? 'ts' : 'js'
 const Connection = new DataSource({
   type: 'mysql',
   synchronize: false,
+  timezone: 'Z',
   host: `${process.env.MYSQL_HOST}`,
   port: Number(process.env.MYSQL_PORT),
   username: `${process.env.MYSQL_USER}`,

@@ -9,6 +9,7 @@ import express, {
 import { createServer } from 'node:http'
 
 import '@shared/infra/typeorm'
+import '@shared/container'
 
 import AppError from '@shared/utils/AppError'
 import ResponseHandler from '@shared/utils/ResponseHandler'

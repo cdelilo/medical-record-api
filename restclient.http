@@ -2,3 +2,14 @@
 
 ### Check API health
 GET {{host}}/healthy
+
+# Patients
+
+### List patients
+GET {{host}}/patients?page=1&limit=20
+
+### Show patient
+GET {{host}}/patients/39d16f88-537e-4aec-b8f4-7e488ad3405d
+
+### Delete patient personal data (LGPD)
+DELETE {{host}}/patients/33b418d5-1521-4640-b9d9-81ac04a0513b
