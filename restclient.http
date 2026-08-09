@@ -35,3 +35,16 @@ Content-Type: application/json
 {
   "weightKg": 95.4
 }
+
+# Appointments
+
+### List appointments (indicates when a patient is anonymized)
+GET {{host}}/appointments
+    ?patientId=39d16f88-537e-4aec-b8f4-7e488ad3405d
+    &from=2026-08-09T05:00:00-03:00
+    &to=2026-08-09T21:00:00-03:00
+    &page=1
+    &limit=2
+
+### Show appointment
+GET {{host}}/appointments/0a4b9567-941e-11f1-a943-e274d4327676
