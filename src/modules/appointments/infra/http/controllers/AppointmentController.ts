@@ -5,6 +5,10 @@ import ResponseHandler from '@shared/utils/ResponseHandler'
 import ListAppointmentsService from '@modules/appointments/services/ListAppointmentsService'
 import { type IListAppointmentsDTOInput } from '@modules/appointments/interfaces/IListAppointmentsDTOInput'
 import ShowAppointmentService from '@modules/appointments/services/ShowAppointmentService'
+import DeleteAppointmentService from '@modules/appointments/services/DeleteAppointmentService'
+import UpdateAppointmentService from '@modules/appointments/services/UpdateAppointmentService'
+import CreateAppointmentService from '@modules/appointments/services/CreateAppointmentService'
+import UpdateAppointmentNoteService from '@modules/appointments/services/UpdateAppointmentNoteService'
 
 export default class AppointmentController {
   public async list(request: Request, response: Response): Promise<Response> {
@@ -56,6 +60,21 @@ export default class AppointmentController {
 
     const deleteAppointmentService = container.resolve(DeleteAppointmentService)
     await deleteAppointmentService.execute(id)
+
+    return response.status(204).end()
+  }
+
+  public async updateNote(
+    request: Request,
+    response: Response,
+  ): Promise<Response> {
+    const payload = request.body
+    const { id } = request.params
+
+    const updateAppointmentNoteService = container.resolve(
+      UpdateAppointmentNoteService,
+    )
+    await updateAppointmentNoteService.execute(id, payload)
 
     return response.status(204).end()
   }

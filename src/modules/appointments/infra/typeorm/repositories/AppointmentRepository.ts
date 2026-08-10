@@ -1,7 +1,7 @@
 import { IAppointmentRepository } from '@modules/appointments/interfaces/IAppointmentRepository'
 import { injectable } from 'tsyringe'
 import { Appointment } from '../entities/Appointment'
-import { Repository } from 'typeorm'
+import { Not, Repository } from 'typeorm'
 import { DataSource } from '@shared/infra/typeorm'
 import { IFindWithPatientPaginatedInput } from '@modules/appointments/interfaces/IFindWithPatientPaginatedInput'
 import {
@@ -9,6 +9,7 @@ import {
   type IFindWithPatientPaginatedOutput,
 } from '@modules/appointments/interfaces/IFindWithPatientPaginatedOutput'
 import { IFindByIdOutput } from '@modules/appointments/interfaces/IFindByIdOutput'
+import { ICreateInput } from '@modules/appointments/interfaces/ICreateInput'
 
 @injectable()
 class AppointmentRepository implements IAppointmentRepository {
@@ -16,6 +17,26 @@ class AppointmentRepository implements IAppointmentRepository {
 
   constructor() {
     this.ormRepository = DataSource.getRepository(Appointment)
+  }
+
+  public async findByScheduledAt(
+    scheduledAt: Date,
+  ): Promise<Appointment | null> {
+    return this.ormRepository.findOneBy({
+      scheduledAt,
+    })
+  }
+
+  public async findByScheduledAtExcludingId(
+    scheduledAt: Date,
+    id: string,
+  ): Promise<Appointment | null> {
+    return this.ormRepository.findOne({
+      where: {
+        scheduledAt,
+        id: Not(id),
+      },
+    })
   }
 
   public async findById(id: string) {
@@ -84,6 +105,24 @@ class AppointmentRepository implements IAppointmentRepository {
       appointments,
       total,
     }
+  }
+
+  public async create(data: ICreateInput): Promise<Appointment> {
+    const appointment = this.ormRepository.create(data)
+
+    await this.ormRepository.save(appointment)
+
+    return appointment
+  }
+
+  public async save(data: Appointment): Promise<Appointment> {
+    return this.ormRepository.save(data)
+  }
+
+  public async delete(id: string): Promise<boolean> {
+    const result = await this.ormRepository.delete({ id })
+
+    return !!result.affected
   }
 }
 

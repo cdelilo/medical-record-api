@@ -10,12 +10,17 @@ const patientIdSchema = Joi.string().uuid().required()
 
 const patientFields = {
   name: Joi.string().trim().min(3).max(150),
-  phone: Joi.string().pattern(/^\+[1-9]\d{7,14}$/),
   email: Joi.string().email().max(254).lowercase(),
   birthDate: Joi.date().iso().max('now'),
   sex: Joi.string().valid('MALE', 'FEMALE'),
   heightM: Joi.number().min(0.3).max(2.8),
   weightKg: Joi.number().min(0.5).max(500),
+  phone: Joi.string()
+    .pattern(/^\+[1-9]\d{7,14}$/)
+    .messages({
+      'string.pattern.base':
+        'Invalid format. Include the country code with a + sign, area code, and phone number (e.g., +5511999999999).',
+    }),
 }
 
 patientRouter.get(

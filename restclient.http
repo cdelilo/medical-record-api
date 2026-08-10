@@ -48,3 +48,31 @@ GET {{host}}/appointments
 
 ### Show appointment
 GET {{host}}/appointments/0a4b9567-941e-11f1-a943-e274d4327676
+
+### Create appointment
+POST {{host}}/appointments
+Content-Type: application/json
+
+{
+  "patientId": "39d16f88-537e-4aec-b8f4-7e488ad3405d",
+  "scheduledAt": "2026-08-15T09:00:00-03:00"
+}
+
+### Update appointment
+PATCH {{host}}/appointments/b2f4c3bd-942f-11f1-a943-e274d4327676
+Content-Type: application/json
+
+{
+  "scheduledAt": "2026-08-15T09:00:00-03:00"
+}
+
+### Update appointment note
+PUT {{host}}/appointments/225c362d-5d45-4ae8-810f-abccafddb32e/note
+Content-Type: application/json
+
+{
+  "note": "Relatou que tem alergia a XPTO"
+}
+
+### Delete appointment
+DELETE {{host}}/appointments/0a4b9567-941e-11f1-a943-e274d4327676

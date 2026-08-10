@@ -1,6 +1,6 @@
 export interface IFindByIdOutput {
   id: string
   patientId: string
-  scheduledAt: string
+  scheduledAt: Date
   notes: string
 }
