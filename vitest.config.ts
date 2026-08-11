@@ -8,7 +8,7 @@ export default defineConfig({
     environment: 'node',
     clearMocks: true,
     include: ['src/**/*.spec.ts'],
-    setupFiles: ['src/config/test.ts'],
+    setupFiles: ['src/configs/test.ts'],
     coverage: {
       provider: 'v8',
       include: ['src/modules/*/services/*.ts'],
