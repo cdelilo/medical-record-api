@@ -1,0 +1,1109 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Medical Record API",
+    "description": "API for managing electronic medical records, patient information, and consultation records.",
+    "version": "1.0.0"
+  },
+  "tags": [
+    {
+      "name": "Patients",
+      "description": "Patient management operations."
+    },
+    {
+      "name": "Appointments",
+      "description": "Appointment management operations."
+    }
+  ],
+  "paths": {
+    "/patients": {
+      "get": {
+        "tags": ["Patients"],
+        "summary": "List patients",
+        "description": "Returns active patients using the requested pagination parameters.",
+        "operationId": "listPatients",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of patients returned.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patient list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PatientListItem"
+                  }
+                },
+                "example": [
+                  {
+                    "id": "39d16f88-537e-4aec-b8f4-7e488ad3405d",
+                    "name": "Maria da Cunha",
+                    "phone": "+5516994215196",
+                    "birthDate": "1995-03-02",
+                    "sex": "FEMALE"
+                  }
+                ]
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Patients"],
+        "summary": "Create a patient",
+        "description": "Creates a new patient record.",
+        "operationId": "createPatient",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePatientRequest"
+              },
+              "example": {
+                "name": "Maria da Cunha",
+                "phone": "+5516994215196",
+                "email": "maria@example.com",
+                "birthDate": "1995-03-02",
+                "sex": "FEMALE",
+                "heightM": 1.68,
+                "weightKg": 65.4
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Patient created. The response has no body."
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/patients/{id}": {
+      "get": {
+        "tags": ["Patients"],
+        "summary": "Get a patient",
+        "description": "Returns a patient and the patient's appointments.",
+        "operationId": "showPatient",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PatientId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Patient details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PatientDetails"
+                },
+                "example": {
+                  "id": "39d16f88-537e-4aec-b8f4-7e488ad3405d",
+                  "name": "Maria da Cunha",
+                  "phone": "+5516994215196",
+                  "birthDate": "1995-03-02",
+                  "sex": "FEMALE",
+                  "heightM": "1.68",
+                  "weightKg": "65.40",
+                  "appointments": [
+                    {
+                      "id": "0a4b9567-941e-11f1-a943-e274d4327676",
+                      "scheduledAt": "2026-08-15T12:00:00.000Z",
+                      "notes": "First consultation"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/PatientNotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Patients"],
+        "summary": "Update a patient",
+        "description": "Updates one or more patient fields.",
+        "operationId": "updatePatient",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PatientId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePatientRequest"
+              },
+              "example": {
+                "weightKg": 95.4
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Patient updated. The response has no body."
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/PatientNotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Patients"],
+        "summary": "Anonymize a patient",
+        "description": "Anonymizes personal data for LGPD compliance. Repeating the request for an already anonymized patient succeeds without changing it again.",
+        "operationId": "deletePatient",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/PatientId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Patient anonymized. The response has no body."
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/PatientNotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/appointments": {
+      "get": {
+        "tags": ["Appointments"],
+        "summary": "List appointments",
+        "description": "Returns appointments ordered by scheduled time. Appointments linked to anonymized patients identify the patient as deleted.",
+        "operationId": "listAppointments",
+        "parameters": [
+          {
+            "name": "patientId",
+            "in": "query",
+            "description": "Filter appointments by patient identifier.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "from",
+            "in": "query",
+            "description": "Inclusive lower bound for the scheduled time range.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "example": "2026-08-09T05:00:00-03:00"
+          },
+          {
+            "name": "to",
+            "in": "query",
+            "description": "Inclusive upper bound for the scheduled time range.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "example": "2026-08-09T21:00:00-03:00"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Page number.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Maximum number of appointments returned.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Paginated appointment list.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentListResponse"
+                },
+                "example": {
+                  "data": [
+                    {
+                      "id": "0a4b9567-941e-11f1-a943-e274d4327676",
+                      "scheduledAt": "2026-08-09T08:00:00.000Z",
+                      "notes": "First consultation",
+                      "patient": {
+                        "id": "39d16f88-537e-4aec-b8f4-7e488ad3405d",
+                        "name": "Maria da Cunha"
+                      }
+                    },
+                    {
+                      "id": "b2f4c3bd-942f-11f1-a943-e274d4327676",
+                      "scheduledAt": "2026-08-09T11:00:00.000Z",
+                      "notes": null,
+                      "patient": {
+                        "id": "33b418d5-1521-4640-b9d9-81ac04a0513b",
+                        "deleted": true
+                      }
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "limit": 20,
+                    "total": 2,
+                    "totalPages": 1
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/AppointmentBadRequest"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "post": {
+        "tags": ["Appointments"],
+        "summary": "Create an appointment",
+        "description": "Creates an appointment for an active patient at a future, available time.",
+        "operationId": "createAppointment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateAppointmentRequest"
+              },
+              "example": {
+                "patientId": "39d16f88-537e-4aec-b8f4-7e488ad3405d",
+                "scheduledAt": "2026-08-15T09:00:00-03:00"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Appointment created. The response has no body."
+          },
+          "400": {
+            "$ref": "#/components/responses/AppointmentBadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/PatientNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/AppointmentTimeConflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/appointments/{id}": {
+      "get": {
+        "tags": ["Appointments"],
+        "summary": "Get an appointment",
+        "description": "Returns appointment details.",
+        "operationId": "showAppointment",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppointmentId"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Appointment details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppointmentDetails"
+                },
+                "example": {
+                  "id": "0a4b9567-941e-11f1-a943-e274d4327676",
+                  "patientId": "39d16f88-537e-4aec-b8f4-7e488ad3405d",
+                  "scheduledAt": "2026-08-15T12:00:00.000Z",
+                  "notes": "First consultation"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/AppointmentNotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Appointments"],
+        "summary": "Update an appointment",
+        "description": "Updates the patient, scheduled time, or both. A new scheduled time must be future and available.",
+        "operationId": "updateAppointment",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppointmentId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAppointmentRequest"
+              },
+              "example": {
+                "scheduledAt": "2026-08-15T09:00:00-03:00"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Appointment updated. The response has no body."
+          },
+          "400": {
+            "$ref": "#/components/responses/AppointmentBadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/AppointmentOrPatientNotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/AppointmentTimeConflict"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Appointments"],
+        "summary": "Delete an appointment",
+        "description": "Permanently deletes an appointment.",
+        "operationId": "deleteAppointment",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppointmentId"
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Appointment deleted. The response has no body."
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/AppointmentNotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/appointments/{id}/note": {
+      "put": {
+        "tags": ["Appointments"],
+        "summary": "Update an appointment note",
+        "description": "Replaces the note associated with an appointment.",
+        "operationId": "updateAppointmentNote",
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/AppointmentId"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAppointmentNoteRequest"
+              },
+              "example": {
+                "note": "Patient reported an allergy to XPTO."
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Appointment note updated. The response has no body."
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "404": {
+            "$ref": "#/components/responses/AppointmentNotFound"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "parameters": {
+      "PatientId": {
+        "name": "id",
+        "in": "path",
+        "description": "Patient identifier.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "example": "39d16f88-537e-4aec-b8f4-7e488ad3405d"
+      },
+      "AppointmentId": {
+        "name": "id",
+        "in": "path",
+        "description": "Appointment identifier.",
+        "required": true,
+        "schema": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "example": "0a4b9567-941e-11f1-a943-e274d4327676"
+      }
+    },
+    "schemas": {
+      "PatientListItem": {
+        "type": "object",
+        "required": ["id", "name", "phone", "birthDate", "sex"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+5516994215196"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "sex": {
+            "type": "string",
+            "enum": ["MALE", "FEMALE"]
+          }
+        }
+      },
+      "PatientDetails": {
+        "type": "object",
+        "description": "Detailed patient representation. Email is not returned by this endpoint.",
+        "required": [
+          "id",
+          "name",
+          "phone",
+          "birthDate",
+          "sex",
+          "heightM",
+          "weightKg",
+          "appointments"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "sex": {
+            "type": "string",
+            "enum": ["MALE", "FEMALE"]
+          },
+          "heightM": {
+            "type": "string",
+            "description": "Patient height in meters, returned as a decimal string.",
+            "example": "1.68"
+          },
+          "weightKg": {
+            "type": "string",
+            "description": "Patient weight in kilograms, returned as a decimal string.",
+            "example": "65.40"
+          },
+          "appointments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppointmentSummary"
+            }
+          }
+        }
+      },
+      "AppointmentSummary": {
+        "type": "object",
+        "required": ["id", "scheduledAt", "notes"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "CreatePatientRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "phone",
+          "email",
+          "birthDate",
+          "sex",
+          "heightM",
+          "weightKg"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 150
+          },
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+[1-9]\\d{7,14}$",
+            "description": "Phone number in E.164 format."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of birth. It cannot be in the future."
+          },
+          "sex": {
+            "type": "string",
+            "enum": ["MALE", "FEMALE"]
+          },
+          "heightM": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0.3,
+            "maximum": 2.8,
+            "description": "Height in meters."
+          },
+          "weightKg": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0.5,
+            "maximum": 500,
+            "description": "Weight in kilograms."
+          }
+        }
+      },
+      "UpdatePatientRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 150
+          },
+          "phone": {
+            "type": "string",
+            "pattern": "^\\+[1-9]\\d{7,14}$",
+            "description": "Phone number in E.164 format."
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "birthDate": {
+            "type": "string",
+            "format": "date",
+            "description": "Date of birth. It cannot be in the future."
+          },
+          "sex": {
+            "type": "string",
+            "enum": ["MALE", "FEMALE"]
+          },
+          "heightM": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0.3,
+            "maximum": 2.8,
+            "description": "Height in meters."
+          },
+          "weightKg": {
+            "type": "number",
+            "format": "float",
+            "minimum": 0.5,
+            "maximum": 500,
+            "description": "Weight in kilograms."
+          }
+        }
+      },
+      "AppError": {
+        "type": "object",
+        "required": ["message"],
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ValidationError": {
+        "type": "object",
+        "required": ["statusCode", "error", "message", "validation"],
+        "properties": {
+          "statusCode": {
+            "type": "integer",
+            "example": 400
+          },
+          "error": {
+            "type": "string",
+            "example": "Bad Request"
+          },
+          "message": {
+            "type": "string",
+            "example": "Validation failed"
+          },
+          "validation": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/ValidationDetail"
+            }
+          }
+        }
+      },
+      "ValidationDetail": {
+        "type": "object",
+        "required": ["source", "keys", "message"],
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": ["params", "query", "body"]
+          },
+          "keys": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "AppointmentDetails": {
+        "type": "object",
+        "required": ["id", "patientId", "scheduledAt", "notes"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "patientId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "AppointmentListItem": {
+        "type": "object",
+        "required": ["id", "scheduledAt", "notes", "patient"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "patient": {
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ActivePatientReference"
+              },
+              {
+                "$ref": "#/components/schemas/DeletedPatientReference"
+              }
+            ]
+          }
+        }
+      },
+      "ActivePatientReference": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "DeletedPatientReference": {
+        "type": "object",
+        "required": ["id", "deleted"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "deleted": {
+            "type": "boolean",
+            "enum": [true]
+          }
+        }
+      },
+      "Pagination": {
+        "type": "object",
+        "required": ["page", "limit", "total", "totalPages"],
+        "properties": {
+          "page": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "totalPages": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      },
+      "AppointmentListResponse": {
+        "type": "object",
+        "required": ["data", "pagination"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AppointmentListItem"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
+          }
+        }
+      },
+      "CreateAppointmentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["patientId", "scheduledAt"],
+        "properties": {
+          "patientId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?(?:Z|[+-]\\d{2}:\\d{2})$",
+            "description": "ISO 8601 date-time with a timezone. It must be in the future."
+          }
+        }
+      },
+      "UpdateAppointmentRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "minProperties": 1,
+        "properties": {
+          "patientId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "scheduledAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{3})?(?:Z|[+-]\\d{2}:\\d{2})$",
+            "description": "ISO 8601 date-time with a timezone. It must be in the future."
+          }
+        }
+      },
+      "UpdateAppointmentNoteRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["note"],
+        "properties": {
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 5000
+          }
+        }
+      }
+    },
+    "responses": {
+      "ValidationError": {
+        "description": "Request validation failed.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "example": {
+              "statusCode": 400,
+              "error": "Bad Request",
+              "message": "Validation failed",
+              "validation": {
+                "body": {
+                  "source": "body",
+                  "keys": ["email"],
+                  "message": "\"email\" must be a valid email"
+                }
+              }
+            }
+          }
+        }
+      },
+      "PatientNotFound": {
+        "description": "Patient not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AppError"
+            },
+            "example": {
+              "message": "Patient not found"
+            }
+          }
+        }
+      },
+      "AppointmentBadRequest": {
+        "description": "Request validation failed or an appointment business rule was violated.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/ValidationError"
+                },
+                {
+                  "$ref": "#/components/schemas/AppError"
+                }
+              ]
+            },
+            "examples": {
+              "validationError": {
+                "summary": "Invalid request payload",
+                "value": {
+                  "statusCode": 400,
+                  "error": "Bad Request",
+                  "message": "Validation failed",
+                  "validation": {
+                    "body": {
+                      "source": "body",
+                      "keys": ["scheduledAt"],
+                      "message": "Must be a valid ISO date with timezone"
+                    }
+                  }
+                }
+              },
+              "pastScheduledTime": {
+                "summary": "Scheduled time is not in the future",
+                "value": {
+                  "message": "Appointment must be scheduled in the future"
+                }
+              },
+              "invalidDateRange": {
+                "summary": "Invalid appointment list date range",
+                "value": {
+                  "message": "Invalid date range"
+                }
+              }
+            }
+          }
+        }
+      },
+      "AppointmentNotFound": {
+        "description": "Appointment not found.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AppError"
+            },
+            "example": {
+              "message": "Appointment not found"
+            }
+          }
+        }
+      },
+      "AppointmentOrPatientNotFound": {
+        "description": "Appointment not found, or the replacement patient does not exist or is inactive.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AppError"
+            },
+            "examples": {
+              "appointmentNotFound": {
+                "summary": "Appointment not found",
+                "value": {
+                  "message": "Appointment not found"
+                }
+              },
+              "patientNotFoundOrInactive": {
+                "summary": "Replacement patient is unavailable",
+                "value": {
+                  "message": "Patient not found or inactive"
+                }
+              }
+            }
+          }
+        }
+      },
+      "AppointmentTimeConflict": {
+        "description": "Another appointment already exists at the requested time.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AppError"
+            },
+            "example": {
+              "message": "Appointment time conflict"
+            }
+          }
+        }
+      },
+      "InternalServerError": {
+        "description": "Unexpected server error.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AppError"
+            },
+            "example": {
+              "message": "Internal server error - Unexpected error"
+            }
+          }
+        }
+      }
+    }
+  }
+}
