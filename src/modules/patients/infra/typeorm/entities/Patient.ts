@@ -8,6 +8,7 @@ import {
   DeleteDateColumn,
   Entity,
   OneToMany,
+  Relation,
 } from 'typeorm'
 
 @Entity('patients')
@@ -58,5 +59,5 @@ export class Patient {
   deletedAt: Date | null
 
   @OneToMany(() => Appointment, appointment => appointment.patient)
-  appointments: Appointment[]
+  appointments: Relation<Appointment[]>
 }

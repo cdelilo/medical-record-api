@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  Relation,
 } from 'typeorm'
 
 @Entity('appointments')
@@ -31,5 +32,5 @@ export class Appointment {
 
   @ManyToOne(() => Patient, patient => patient.appointments)
   @JoinColumn({ name: 'patient_id' })
-  patient: Patient
+  patient: Relation<Patient>
 }
