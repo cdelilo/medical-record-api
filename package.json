@@ -4,25 +4,21 @@
   "license": "MIT",
   "type": "module",
   "engines": {
-    "node": ">=22.0.0"
+    "node": "^22.0.0"
   },
   "scripts": {
     "test": "docker compose exec -T app npm run test:unit",
     "test:unit": "vitest run",
     "test:coverage": "docker compose exec -T app npm run test:unit:coverage",
     "test:unit:coverage": "vitest run --coverage",
-    "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier . --write",
-    "format:check": "prettier . --check",
-    "check": "npm run typecheck && npm run format:check && npm run lint",
-    "fix": "npm run format && npm run lint:fix",
+    "check": "tsc --noEmit && prettier . --check && eslint",
+    "fix": "prettier . --write && eslint . --fix",
     "typeorm": "tsx ./node_modules/typeorm/cli.js",
     "migration:create": "npm run typeorm -- migration:create",
     "migration:run": "npm run typeorm -- migration:run -d ./src/shared/infra/typeorm/index.ts",
-    "migration:revert": "npm run typeorm -- migration:revert -d ./src/shared/infra/typeorm/index.ts",
+    "migration:run:prod": "node ./node_modules/typeorm/cli.js migration:run -d ./dist/shared/infra/typeorm/index.js",
     "seed:run": "tsx ./src/shared/infra/typeorm/seed/index.ts",
+    "seed:run:prod": "node ./dist/shared/infra/typeorm/seed/index.js",
     "dev": "tsx watch ./src/shared/infra/http/server.ts",
     "start": "node ./dist/shared/infra/http/server.js",
     "build": "tsc && tsc-alias"

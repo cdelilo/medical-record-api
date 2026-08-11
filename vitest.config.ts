@@ -11,7 +11,7 @@ export default defineConfig({
     setupFiles: ['src/configs/test.ts'],
     coverage: {
       provider: 'v8',
-      include: ['src/modules/*/services/*.ts'],
+      include: ['src/modules/**/services/*.ts'],
     },
   },
 })

@@ -1,6 +1,3 @@
-import 'reflect-metadata'
-import 'dotenv/config'
-
 import { hash } from 'bcryptjs'
 import { randomUUID } from 'node:crypto'
 
