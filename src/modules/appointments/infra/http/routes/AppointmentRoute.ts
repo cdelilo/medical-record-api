@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import { celebrate, Joi, Segments } from 'celebrate'
 import AppointmentController from '../controllers/AppointmentController'
+import isAuthenticated from '@shared/infra/http/middlewares/isAuthenticated'
 
 const appointmentRouter = Router()
 const appointmentController = new AppointmentController()
@@ -14,6 +15,8 @@ const scheduledAtSchema = Joi.string()
   .messages({
     'string.pattern.base': 'Must be a valid ISO date with timezone',
   })
+
+appointmentRouter.use(isAuthenticated)
 
 appointmentRouter.get(
   '/:id',

@@ -2,6 +2,7 @@ import { celebrate, Joi, Segments } from 'celebrate'
 import { Router } from 'express'
 
 import PatientController from '../controllers/PatientController'
+import isAuthenticated from '@shared/infra/http/middlewares/isAuthenticated'
 
 const patientRouter = Router()
 const patientController = new PatientController()
@@ -22,6 +23,8 @@ const patientFields = {
         'Invalid format. Include the country code with a + sign, area code, and phone number (e.g., +5511999999999).',
     }),
 }
+
+patientRouter.use(isAuthenticated)
 
 patientRouter.get(
   '/:id',

@@ -1,11 +1,14 @@
-import { UserRole } from '@modules/users/enums/UserRole'
 import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
   UpdateDateColumn,
   Entity,
+  OneToMany,
+  Relation,
 } from 'typeorm'
+import { RefreshToken } from './RefreshToken'
+import { UserRole } from '@modules/authenticates/enums/UserRole'
 
 @Entity('users')
 export class User {
@@ -33,4 +36,7 @@ export class User {
 
   @UpdateDateColumn({ name: 'updated_at' })
   updatedAt: Date
+
+  @OneToMany(() => RefreshToken, refreshToken => refreshToken.user)
+  refreshTokens: Relation<RefreshToken[]>
 }

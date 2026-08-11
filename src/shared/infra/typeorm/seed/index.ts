@@ -1,9 +1,9 @@
 import { hash } from 'bcryptjs'
 import { randomUUID } from 'node:crypto'
 
-import { UserRole } from '@modules/users/enums/UserRole'
-import { User } from '@modules/users/infra/typeorm/entities/User'
 import { DataSource } from '@shared/infra/typeorm'
+import { User } from '@modules/authenticates/infra/typeorm/entities/User'
+import { UserRole } from '@modules/authenticates/enums/UserRole'
 
 const getRequiredSeedValue = (variableName: string): string => {
   const value = process.env[variableName]
