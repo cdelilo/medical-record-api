@@ -7,6 +7,10 @@
   },
   "tags": [
     {
+      "name": "Authentication",
+      "description": "Authentication and token lifecycle operations."
+    },
+    {
       "name": "Patients",
       "description": "Patient management operations."
     },
@@ -15,7 +19,140 @@
       "description": "Appointment management operations."
     }
   ],
+  "security": [{ "bearerAuth": [] }],
   "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Sign in",
+        "description": "Authenticates a doctor and creates a refresh token session.",
+        "operationId": "login",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginRequest"
+              },
+              "example": {
+                "email": "john@example.com",
+                "password": "123456"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authenticated successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LoginResponse"
+                },
+                "example": {
+                  "user": {
+                    "name": "John Doe",
+                    "email": "john@example.com"
+                  },
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.access-token",
+                  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh-token"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/InvalidCredentials"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Refresh tokens",
+        "description": "Rotates a valid refresh token and returns a new access token and refresh token. The previous refresh token cannot be used again.",
+        "operationId": "refreshToken",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              },
+              "example": {
+                "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh-token"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Tokens refreshed successfully.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPair"
+                },
+                "example": {
+                  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new-access-token",
+                  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.new-refresh-token"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/InvalidRefreshToken"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
+    "/auth/logout": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Sign out",
+        "description": "Revokes the provided refresh token. The operation is idempotent: unknown or already revoked tokens also succeed. The access token remains valid until it expires.",
+        "operationId": "logout",
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenRequest"
+              },
+              "example": {
+                "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refresh-token"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": "Refresh token revoked. The response has no body."
+          },
+          "400": {
+            "$ref": "#/components/responses/ValidationError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    },
     "/patients": {
       "get": {
         "tags": ["Patients"],
@@ -73,6 +210,9 @@
           "400": {
             "$ref": "#/components/responses/ValidationError"
           },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
           }
@@ -108,6 +248,9 @@
           },
           "400": {
             "$ref": "#/components/responses/ValidationError"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
@@ -159,6 +302,9 @@
           "404": {
             "$ref": "#/components/responses/PatientNotFound"
           },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
           }
@@ -197,6 +343,9 @@
           "404": {
             "$ref": "#/components/responses/PatientNotFound"
           },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
           }
@@ -221,6 +370,9 @@
           },
           "404": {
             "$ref": "#/components/responses/PatientNotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
@@ -333,6 +485,9 @@
           "400": {
             "$ref": "#/components/responses/AppointmentBadRequest"
           },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
           }
@@ -369,6 +524,9 @@
           },
           "409": {
             "$ref": "#/components/responses/AppointmentTimeConflict"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
@@ -409,6 +567,9 @@
           },
           "404": {
             "$ref": "#/components/responses/AppointmentNotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
@@ -451,6 +612,9 @@
           "409": {
             "$ref": "#/components/responses/AppointmentTimeConflict"
           },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
           }
@@ -475,6 +639,9 @@
           },
           "404": {
             "$ref": "#/components/responses/AppointmentNotFound"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
@@ -516,6 +683,9 @@
           "404": {
             "$ref": "#/components/responses/AppointmentNotFound"
           },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
           "500": {
             "$ref": "#/components/responses/InternalServerError"
           }
@@ -524,6 +694,14 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Paste the access token returned by the login endpoint. Do not include the Bearer prefix."
+      }
+    },
     "parameters": {
       "PatientId": {
         "name": "id",
@@ -549,6 +727,80 @@
       }
     },
     "schemas": {
+      "LoginRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["email", "password"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 255,
+            "format": "password"
+          }
+        }
+      },
+      "AuthenticatedUser": {
+        "type": "object",
+        "required": ["name", "email"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "LoginResponse": {
+        "type": "object",
+        "required": ["user", "token", "refreshToken"],
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/AuthenticatedUser"
+          },
+          "token": {
+            "type": "string",
+            "description": "JWT access token used as Bearer authentication."
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "JWT refresh token used only by the refresh and logout endpoints."
+          }
+        }
+      },
+      "RefreshTokenRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["refreshToken"],
+        "properties": {
+          "refreshToken": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 1024
+          }
+        }
+      },
+      "TokenPair": {
+        "type": "object",
+        "required": ["token", "refreshToken"],
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "JWT access token used as Bearer authentication."
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "Replacement JWT refresh token."
+          }
+        }
+      },
       "PatientListItem": {
         "type": "object",
         "required": ["id", "name", "phone", "birthDate", "sex"],
@@ -960,6 +1212,56 @@
       }
     },
     "responses": {
+      "Unauthorized": {
+        "description": "Access token is missing or invalid.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AppError"
+            },
+            "examples": {
+              "missingToken": {
+                "summary": "Authorization header is missing",
+                "value": {
+                  "message": "Token missing"
+                }
+              },
+              "invalidToken": {
+                "summary": "Access token is invalid or expired",
+                "value": {
+                  "message": "Invalid token"
+                }
+              }
+            }
+          }
+        }
+      },
+      "InvalidCredentials": {
+        "description": "Email or password is incorrect.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AppError"
+            },
+            "example": {
+              "message": "Email or password incorrect"
+            }
+          }
+        }
+      },
+      "InvalidRefreshToken": {
+        "description": "Refresh token is invalid, expired, revoked, unknown, or has already been used.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/AppError"
+            },
+            "example": {
+              "message": "Invalid or expired refresh token"
+            }
+          }
+        }
+      },
       "ValidationError": {
         "description": "Request validation failed.",
         "content": {
