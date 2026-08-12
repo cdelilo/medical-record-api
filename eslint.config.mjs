@@ -5,7 +5,12 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 
 export default defineConfig(
-  globalIgnores(['node_modules/**', 'dist/**', 'package-lock.json']),
+  globalIgnores([
+    'node_modules/**',
+    'dist/**',
+    'coverage/**',
+    'package-lock.json',
+  ]),
 
   eslint.configs.recommended,
   tseslint.configs.recommendedTypeChecked,
@@ -22,7 +27,9 @@ export default defineConfig(
       },
 
       parserOptions: {
-        projectService: true,
+        projectService: {
+          allowDefaultProject: ['vitest.config.ts'],
+        },
         tsconfigRootDir: import.meta.dirname,
       },
     },
@@ -104,6 +111,9 @@ export default defineConfig(
       '@typescript-eslint/strict-boolean-expressions': 'off',
       '@typescript-eslint/no-unnecessary-condition': 'off',
       '@typescript-eslint/no-confusing-void-expression': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-empty-function': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
       eqeqeq: ['error', 'always'],
       curly: ['error', 'all'],
       'prefer-const': 'error',
@@ -136,13 +146,7 @@ export default defineConfig(
     },
   },
   {
-    files: [
-      '**/*.spec.ts',
-      '**/*.test.ts',
-      '**/__tests__/**/*.ts',
-      'test/**/*.ts',
-      'tests/**/*.ts',
-    ],
+    files: ['**/*.spec.ts'],
 
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',

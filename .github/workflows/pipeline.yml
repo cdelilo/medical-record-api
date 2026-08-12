@@ -1,0 +1,104 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+    types: [closed]
+
+concurrency:
+  group: production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    name: Lint, build and test
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check code
+        run: npm run check
+
+      - name: Run tests
+        run: npm run test:unit
+
+      - name: Build application
+        run: npm run build
+
+  cd:
+    name: Publish image and deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: ci
+    if: needs.ci.result == 'success'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/medical-record-api:${{ github.sha }}
+            ${{ secrets.DOCKERHUB_USERNAME }}/medical-record-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Install Render CLI
+        env:
+          RENDER_CLI_VERSION: v2.22.0
+        run: |
+          set -euo pipefail
+          version="${RENDER_CLI_VERSION#v}"
+          curl -sSfL \
+            "https://github.com/render-oss/cli/releases/download/${RENDER_CLI_VERSION}/cli_${version}_linux_amd64.zip" \
+            -o /tmp/render.zip
+          unzip -q /tmp/render.zip -d /tmp/render
+          sudo install -m 0755 "/tmp/render/cli_${RENDER_CLI_VERSION}" /usr/local/bin/render
+          render --version
+
+      - name: Deploy image and wait for Render
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          IMAGE_URL: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/medical-record-api:${{ github.sha }}
+        run: |
+          set -euo pipefail
+          render deploys create "$RENDER_SERVICE_ID" \
+            --image "$IMAGE_URL" \
+            --wait \
+            --confirm \
+            -o json

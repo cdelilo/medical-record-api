@@ -15,17 +15,30 @@ services:
     ports:
       - '3306:3306'
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: medical_record
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: admin
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
-      test: ['CMD', 'mysqladmin', 'ping', '-h', 'localhost', '-uroot', '-proot']
+      test:
+        [
+          'CMD',
+          'mysql',
+          '--protocol=TCP',
+          '-h',
+          '127.0.0.1',
+          '-u${MYSQL_USER}',
+          '-p${MYSQL_PASSWORD}',
+          '${MYSQL_DATABASE}',
+          '-e',
+          'SELECT 1',
+        ]
+      start_period: 30s
       interval: 5s
       timeout: 5s
-      retries: 10
+      retries: 20
 
 volumes:
   mysql_data:

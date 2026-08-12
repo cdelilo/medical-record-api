@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express'
 
-import ResponseHandler from '@shared/utility/ResponseHandler'
+import ResponseHandler from '@shared/utils/ResponseHandler'
 
 export default class HealthyController {
   public async index(request: Request, response: Response): Promise<Response> {

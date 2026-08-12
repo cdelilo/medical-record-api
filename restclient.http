@@ -1,4 +1,121 @@
 @host = http://localhost:3000
 
+@token = token
+@refreshToken = refresh-token
+
 ### Check API health
 GET {{host}}/healthy
+
+# Authentication
+
+### Login
+POST {{host}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "maria@example.com",
+  "password": "123456"
+}
+
+
+### Logout
+POST {{host}}/auth/logout
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+
+### Refresh token
+POST {{host}}/auth/refresh
+Content-Type: application/json
+
+{
+  "refreshToken": "{{refreshToken}}"
+}
+
+# Patients
+
+### List patients
+GET {{host}}/patients?page=1&limit=2
+Authorization: Bearer {{token}}
+
+### Show patient
+GET {{host}}/patients/39d16f88-537e-4aec-b8f4-7e488ad3405d
+Authorization: Bearer {{token}}
+
+### Delete patient personal data (LGPD)
+DELETE {{host}}/patients/33b418d5-1521-4640-b9d9-81ac04a0513b
+Authorization: Bearer {{token}}
+
+### Create patient
+POST {{host}}/patients
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Maria da Cunha",
+  "phone": "+5516994215196",
+  "email": "maria@example.com",
+  "birthDate": "1995-03-02",
+  "sex": "FEMALE",
+  "heightM": 1.68,
+  "weightKg": 65.4
+}
+
+### Update patient
+PATCH {{host}}/patients/39d16f88-537e-4aec-b8f4-7e488ad3405d
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "weightKg": 95.4
+}
+
+# Appointments
+
+### List appointments (indicates when a patient is anonymized)
+GET {{host}}/appointments
+    ?patientId=39d16f88-537e-4aec-b8f4-7e488ad3405d
+    &from=2026-08-09T05:00:00-03:00
+    &to=2026-08-09T21:00:00-03:00
+    &page=1
+    &limit=2
+Authorization: Bearer {{token}}
+
+### Show appointment
+GET {{host}}/appointments/0a4b9567-941e-11f1-a943-e274d4327676
+Authorization: Bearer {{token}}
+
+### Create appointment
+POST {{host}}/appointments
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "patientId": "39d16f88-537e-4aec-b8f4-7e488ad3405d",
+  "scheduledAt": "2026-08-15T09:00:00-03:00"
+}
+
+### Update appointment
+PATCH {{host}}/appointments/b2f4c3bd-942f-11f1-a943-e274d4327676
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "scheduledAt": "2026-08-15T09:00:00-03:00"
+}
+
+### Update appointment note
+PUT {{host}}/appointments/225c362d-5d45-4ae8-810f-abccafddb32e/note
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "note": "Relatou que tem alergia a XPTO"
+}
+
+### Delete appointment
+DELETE {{host}}/appointments/0a4b9567-941e-11f1-a943-e274d4327676
+Authorization: Bearer {{token}}

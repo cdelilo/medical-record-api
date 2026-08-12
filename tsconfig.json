@@ -11,7 +11,9 @@
 
     "paths": {
       "@modules/*": ["./src/modules/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@configs/*": ["./src/configs/*"],
+      "@docs/*": ["./src/docs/*"]
     },
 
     "strictNullChecks": true,

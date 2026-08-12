@@ -6,12 +6,15 @@ import express, {
   type Request,
   type Response,
 } from 'express'
+import swaggerUi from 'swagger-ui-express'
 import { createServer } from 'node:http'
 
-import '@shared/infra/typeorm'
+import '@shared/container'
 
-import AppError from '@shared/utility/AppError'
-import ResponseHandler from '@shared/utility/ResponseHandler'
+import swaggerUiOptions from '@configs/doc'
+import swaggerFile from '@docs/swagger.json' with { type: 'json' }
+import AppError from '@shared/utils/AppError'
+import ResponseHandler from '@shared/utils/ResponseHandler'
 
 import routes from './routes'
 
@@ -19,6 +22,13 @@ const app = express()
 const server = createServer(app)
 
 app.use(cors())
+app.use(express.json())
+
+app.use(
+  '/api-docs',
+  swaggerUi.serve,
+  swaggerUi.setup(swaggerFile, swaggerUiOptions),
+)
 
 app.use(routes)
 
