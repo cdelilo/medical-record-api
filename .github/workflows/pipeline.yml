@@ -81,14 +81,12 @@ jobs:
         env:
           RENDER_CLI_VERSION: v2.22.0
         run: |
-          set -euo pipefail
           version="${RENDER_CLI_VERSION#v}"
           curl -sSfL \
             "https://github.com/render-oss/cli/releases/download/${RENDER_CLI_VERSION}/cli_${version}_linux_amd64.zip" \
             -o /tmp/render.zip
           unzip -q /tmp/render.zip -d /tmp/render
-          sudo install -m 0755 "/tmp/render/cli_${RENDER_CLI_VERSION}" /usr/local/bin/render
-          render --version
+          install -m 0755 "/tmp/render/cli_${RENDER_CLI_VERSION}" /tmp/render-cli
 
       - name: Deploy image and wait for Render
         env:
@@ -97,7 +95,7 @@ jobs:
           IMAGE_URL: docker.io/${{ secrets.DOCKERHUB_USERNAME }}/medical-record-api:${{ github.sha }}
         run: |
           set -euo pipefail
-          render deploys create "$RENDER_SERVICE_ID" \
+          /tmp/render-cli deploys create "$RENDER_SERVICE_ID" \
             --image "$IMAGE_URL" \
             --wait \
             --confirm \

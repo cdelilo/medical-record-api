@@ -15,6 +15,7 @@ Backend REST para um sistema de prontuário eletrônico. A API permite que um m�
 - Vitest
 - Swagger/OpenAPI
 - Docker Compose
+- GitHub Actions, Docker Hub e Render
 - ESLint, Prettier e EditorConfig
 
 ## Arquitetura
