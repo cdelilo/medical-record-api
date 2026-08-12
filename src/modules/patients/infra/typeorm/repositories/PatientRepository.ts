@@ -5,7 +5,10 @@ import { DataSource } from '@shared/infra/typeorm'
 
 import { Patient } from '../entities/Patient'
 import { IPatientRepository } from '@modules/patients/interfaces/IPatientRepository'
-import { IFindPaginatedOutput } from '@modules/patients/interfaces/IFindPaginatedOutput'
+import {
+  IFindPaginatedOutput,
+  IPatient,
+} from '@modules/patients/interfaces/IFindPaginatedOutput'
 import { IFindWithAppointmentsByIdOutput } from '@modules/patients/interfaces/IFindWithAppointmentsById'
 import { ICreateInput } from '@modules/patients/interfaces/ICreateInput'
 
@@ -21,10 +24,13 @@ class PatientRepository implements IPatientRepository {
     return this.ormRepository.findOneBy({ id })
   }
 
-  public async findPaginated(page: number, limit: number) {
+  public async findPaginated(
+    page: number,
+    limit: number,
+  ): Promise<IFindPaginatedOutput> {
     const skip = (page - 1) * limit
 
-    const data = await this.ormRepository.find({
+    const [patients, total] = (await this.ormRepository.findAndCount({
       select: {
         id: true,
         name: true,
@@ -34,9 +40,12 @@ class PatientRepository implements IPatientRepository {
       },
       skip,
       take: limit,
-    })
+    })) as unknown as [IPatient[], number]
 
-    return data as IFindPaginatedOutput[]
+    return {
+      patients,
+      total,
+    }
   }
 
   public async findWithAppointmentsById(id: string) {
