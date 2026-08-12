@@ -186,24 +186,29 @@
         ],
         "responses": {
           "200": {
-            "description": "Patient list.",
+            "description": "Paginated patient list.",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/PatientListItem"
-                  }
+                  "$ref": "#/components/schemas/PatientListResponse"
                 },
-                "example": [
-                  {
-                    "id": "39d16f88-537e-4aec-b8f4-7e488ad3405d",
-                    "name": "Maria da Cunha",
-                    "phone": "+5516994215196",
-                    "birthDate": "1995-03-02",
-                    "sex": "FEMALE"
+                "example": {
+                  "data": [
+                    {
+                      "id": "39d16f88-537e-4aec-b8f4-7e488ad3405d",
+                      "name": "Maria da Cunha",
+                      "phone": "+5516994215196",
+                      "birthDate": "1995-03-02",
+                      "sex": "FEMALE"
+                    }
+                  ],
+                  "pagination": {
+                    "page": 1,
+                    "limit": 20,
+                    "total": 1,
+                    "totalPages": 1
                   }
-                ]
+                }
               }
             }
           },
@@ -823,6 +828,21 @@
           "sex": {
             "type": "string",
             "enum": ["MALE", "FEMALE"]
+          }
+        }
+      },
+      "PatientListResponse": {
+        "type": "object",
+        "required": ["data", "pagination"],
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PatientListItem"
+            }
+          },
+          "pagination": {
+            "$ref": "#/components/schemas/Pagination"
           }
         }
       },

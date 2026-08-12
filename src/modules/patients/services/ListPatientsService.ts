@@ -14,8 +14,21 @@ class ListPatientsService {
   public async execute({
     page,
     limit,
-  }: IListPatientsDTOInput): Promise<IListPatientsDTOOutput[]> {
-    return this.patientRepository.findPaginated(page, limit)
+  }: IListPatientsDTOInput): Promise<IListPatientsDTOOutput> {
+    const { patients, total } = await this.patientRepository.findPaginated(
+      page,
+      limit,
+    )
+
+    return {
+      data: patients,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    }
   }
 }
 

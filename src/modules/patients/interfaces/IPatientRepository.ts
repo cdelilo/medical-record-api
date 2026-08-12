@@ -5,7 +5,7 @@ import { type IFindWithAppointmentsByIdOutput } from './IFindWithAppointmentsByI
 
 export interface IPatientRepository {
   findById(id: string): Promise<Patient | null>
-  findPaginated(page: number, limit: number): Promise<IFindPaginatedOutput[]>
+  findPaginated(page: number, limit: number): Promise<IFindPaginatedOutput>
   findWithAppointmentsById(
     id: string,
   ): Promise<IFindWithAppointmentsByIdOutput | null>
