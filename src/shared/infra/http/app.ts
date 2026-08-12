@@ -44,8 +44,14 @@ app.use(
       )
     }
 
+    console.error('Unexpected application error', {
+      errorName: error.name,
+      method: request.method,
+      path: request.path,
+    })
+
     return ResponseHandler.json(
-      { message: `Internal server error - ${error.message}` },
+      { message: 'Internal server error' },
       response,
       500,
     )
