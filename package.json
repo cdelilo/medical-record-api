@@ -20,7 +20,7 @@
     "seed:run": "tsx ./src/shared/infra/typeorm/seed/index.ts",
     "seed:run:prod": "node ./dist/shared/infra/typeorm/seed/index.js",
     "dev": "tsx watch ./src/shared/infra/http/server.ts",
-    "start": "node ./dist/shared/infra/http/server.js",
+    "start": "npm run migration:run:prod && npm run seed:run:prod && node ./dist/shared/infra/http/server.js",
     "build": "tsc && tsc-alias"
   },
   "dependencies": {
