@@ -9,9 +9,9 @@ const bootstrap = async (): Promise<void> => {
 
   console.log('DataSource has been initialized!')
 
-  const port = Number(process.env.APP_PORT)
+  const port = Number(process.env.PORT ?? process.env.APP_PORT ?? 3000)
 
-  server.listen(port, () => {
+  server.listen(port, '0.0.0.0', () => {
     console.log(`Server started on port ${port}! 🏆`)
   })
 }
